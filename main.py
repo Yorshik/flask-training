@@ -174,14 +174,25 @@ def astronaut_selection():
                               </body>
                             </html>'''
     elif request.method == 'POST':
+        print(request.form['name'])
+        print(request.form['surname'])
         print(request.form['email'])
-        print(request.form['password'])
-        print(request.form['class'])
         print(request.form['file'])
         print(request.form['about'])
         print(request.form['accept'])
         print(request.form['sex'])
-    return "Форма отправлена"
+        print(
+            request.form['check1'],
+            request.form['check2'],
+            request.form['check3'],
+            request.form['check4'],
+            request.form['check5'],
+            request.form['check6'],
+            request.form['check7'],
+            request.form['check8']
+        )
+        print(request.form['education'])
+        return "Форма отправлена"
 
 
 @app.route('/choice/<planet_name>')
@@ -219,6 +230,35 @@ def choice(planet_name):
                     </div>
                     <div class="alert alert-warning" role="alert">
                       {dct[planet_name][3]}
+                    </div>
+                </body>
+            </html>
+    '''
+
+
+@app.route('/results/<nickname>/<int:level>/<float:rating>')
+def results(nickname, level, rating):
+    return f'''
+            <html>
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Привет, Марс!</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" 
+                    rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" 
+                    crossorigin="anonymous">
+                    <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
+                </head>
+                <body>
+                    <h1 class="top">Результаты отбора</h1>
+                    <h2 class="top">Претендента на участие в миссии {nickname}</h2>
+                    <div class="alert alert-success" role="alert">
+                      Поздравляем! Ваш рейтинг после {level} отбора
+                    </div>
+                    <div class="alert">
+                        составляет {rating}!
+                    </div>
+                    <div class="alert alert-warning" role="alert">
+                      Желаем удачи!
                     </div>
                 </body>
             </html>
