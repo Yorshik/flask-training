@@ -1,8 +1,8 @@
-from werkzeug.datastructures.file_storage import FileStorage
 from flask import Flask
 from flask import request
 from flask import url_for
-import os
+from werkzeug.datastructures.file_storage import FileStorage
+
 app = Flask(__name__)
 
 
@@ -301,6 +301,47 @@ def load_photo():
         FILE = request.files['file']
         FILE.save('static/img/img1.png')
         return 'ok'
+
+
+@app.route('/carousel')
+def carousel():
+    return f'''
+    <!doctype htmL>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+      <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}"/>
+      <title>Карусель</title>
+    </head>
+      <body>
+        <h1 class="mytext">Пейзажи Марса</h1>
+        <div class="container-lg">
+          <div id="myCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img src="{url_for('static', filename='img/mars3.jpg')}" class="d-block w-100" alt="Slide 1">
+              </div>
+              <div class="carousel-item">
+                <img src="{url_for('static', filename='img/mars2.png')}" class="d-block w-100" alt="Slide 2">
+              </div>
+              <div class="carousel-item">
+                <img src="{url_for('static', filename='img/mars1.jpg')}" class="d-block w-100" alt="Slide 3">
+              </div>
+            </div>
+            <a class="carousel-control-prev" href="#myCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+            </a>
+            <a class="carousel-control-next" href="#myCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </a>
+          </div>
+        </div>
+      </body>
+    <html>
+    '''
 
 
 FILE: FileStorage = None
