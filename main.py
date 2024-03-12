@@ -1,7 +1,8 @@
+from werkzeug.datastructures.file_storage import FileStorage
 from flask import Flask
 from flask import request
 from flask import url_for
-
+import os
 app = Flask(__name__)
 
 
@@ -71,6 +72,77 @@ def promotion_image():
                 </body>
             </html>
         '''
+
+
+@app.route('/choice/<planet_name>')
+def choice(planet_name):
+    dct = {
+        'Меркурий': ['Жарковато', 'Воды нема', 'Магнитное поле в 100 раз меньше чем у Земли', "Но она красивая"],
+        'Венера': ['Очень жарко', "Атмосфера непригодная", "Слабое магнитное поле", "Красота"],
+        'Марс': ["Прохладно", "Есть вода и атмосфера, не очень пригодная для жизни", "Небольшое магнитное поле",
+                 "И еще она очень красивая"],
+        'Юпитер': ["Невероятно холодно", "Отсутствует поверхность, пройтись не получится", "Сильное магнитное поле",
+                   "Красивая, но опасная"],
+        'Сатурн': ["Еще холоднее", "Пройтись не получится", "Магнитное поле есть", "Красивые кольца"],
+        'Уран': ["Холодон", "Пройтись не получится", "Магнитное поле есть", "Красивая синяя планета"],
+    }
+    return f'''
+            <html>
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Привет, Марс!</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" 
+                    rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" 
+                    crossorigin="anonymous">
+                    <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
+                </head>
+                <body>
+                    <h1 class="top">Мое предложение: {planet_name}</h1>
+                    <div class="alert alert-dark" role="alert">
+                      {dct[planet_name][0]}
+                    </div>
+                    <div class="alert alert-success" role="alert">
+                      {dct[planet_name][1]}
+                    </div>
+                    <div class="alert alert-secondary" role="alert">
+                      {dct[planet_name][2]}
+                    </div>
+                    <div class="alert alert-warning" role="alert">
+                      {dct[planet_name][3]}
+                    </div>
+                </body>
+            </html>
+    '''
+
+
+@app.route('/results/<nickname>/<int:level>/<float:rating>')
+def results(nickname, level, rating):
+    return f'''
+            <html>
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Привет, Марс!</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" 
+                    rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" 
+                    crossorigin="anonymous">
+                    <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
+                </head>
+                <body>
+                    <h1 class="top">Результаты отбора</h1>
+                    <h2 class="top">Претендента на участие в миссии {nickname}</h2>
+                    <div class="alert alert-success" role="alert">
+                      Поздравляем! Ваш рейтинг после {level} отбора
+                    </div>
+                    <div class="alert">
+                        составляет {rating}!
+                    </div>
+                    <div class="alert alert-warning" role="alert">
+                      Желаем удачи!
+                    </div>
+
+                </body>
+            </html>
+    '''
 
 
 @app.route('/astronaut_selection', methods=['POST', "GET"])
@@ -195,75 +267,43 @@ def astronaut_selection():
         return "Форма отправлена"
 
 
-@app.route('/choice/<planet_name>')
-def choice(planet_name):
-    dct = {
-        'Меркурий': ['Жарковато', 'Воды нема', 'Магнитное поле в 100 раз меньше чем у Земли', "Но она красивая"],
-        'Венера': ['Очень жарко', "Атмосфера непригодная", "Слабое магнитное поле", "Красота"],
-        'Марс': ["Прохладно", "Есть вода и атмосфера, не очень пригодная для жизни", "Небольшое магнитное поле",
-                 "И еще она очень красивая"],
-        'Юпитер': ["Невероятно холодно", "Отсутствует поверхность, пройтись не получится", "Сильное магнитное поле",
-                   "Красивая, но опасная"],
-        'Сатурн': ["Еще холоднее", "Пройтись не получится", "Магнитное поле есть", "Красивые кольца"],
-        'Уран': ["Холодон", "Пройтись не получится", "Магнитное поле есть", "Красивая синяя планета"],
-    }
-    return f'''
-            <html>
-                <head>
-                    <meta charset="utf-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Привет, Марс!</title>
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" 
-                    rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" 
-                    crossorigin="anonymous">
-                    <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
-                </head>
+@app.route('/load_photo', methods=['GET', 'POST'])
+def load_photo():
+    global FILE
+    if request.method == 'GET':
+        return f'''<!doctype html>
+            <html lang="en">
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+                <link rel="stylesheet"
+                href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+                integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+                crossorigin="anonymous">
+                <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
+                <title>Пример формы</title>
+              </head>
                 <body>
-                    <h1 class="top">Мое предложение: {planet_name}</h1>
-                    <div class="alert alert-dark" role="alert">
-                      {dct[planet_name][0]}
+                  <h1 class="mytext">Анкета претендента</h1>
+                  <h2 class="mytext">на участие в миссии</h2>
+                  <form class="login_form" method="post" enctype="multipart/form-data">
+                    <img src={url_for('static', filename='img/img1.png')}>
+                    <div class="form-group">
+                      <label for="photo">Приложите фотографию</label>
+                      <input type="file" class="form-control-file" id="photo" name="file">
                     </div>
-                    <div class="alert alert-success" role="alert">
-                      {dct[planet_name][1]}
-                    </div>
-                    <div class="alert alert-secondary" role="alert">
-                      {dct[planet_name][2]}
-                    </div>
-                    <div class="alert alert-warning" role="alert">
-                      {dct[planet_name][3]}
-                    </div>
+                    <button type="submit" class="btn btn-primary">Отправить</button>
+                  </form>
                 </body>
-            </html>
-    '''
-
-
-@app.route('/results/<nickname>/<int:level>/<float:rating>')
-def results(nickname, level, rating):
-    return f'''
             <html>
-                <head>
-                    <meta charset="utf-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1"><title>Привет, Марс!</title>
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" 
-                    rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" 
-                    crossorigin="anonymous">
-                    <link rel="stylesheet" type="text/css" href="{url_for('static', filename='css/style.css')}" />
-                </head>
-                <body>
-                    <h1 class="top">Результаты отбора</h1>
-                    <h2 class="top">Претендента на участие в миссии {nickname}</h2>
-                    <div class="alert alert-success" role="alert">
-                      Поздравляем! Ваш рейтинг после {level} отбора
-                    </div>
-                    <div class="alert">
-                        составляет {rating}!
-                    </div>
-                    <div class="alert alert-warning" role="alert">
-                      Желаем удачи!
-                    </div>
-                </body>
-            </html>
-    '''
+        '''
+    elif request.method == 'POST':
+        FILE = request.files['file']
+        FILE.save('static/img/img1.png')
+        return 'ok'
 
+
+FILE: FileStorage = None
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port='8080')
